@@ -179,5 +179,5 @@ This project is based on the research paper by:
 
 ## Acknowledgments
 
-- Thanks to the technicians and staff at the structural engineering lab for their support during the experimental phase of this research.
+- Thanks to the technicians and staff at the engineering lab for their support during the experimental phase of this research.
 - The comprehensive journal article provided a clear and detailed foundation for this project's documentation.
