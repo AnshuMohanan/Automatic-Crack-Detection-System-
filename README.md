@@ -1,4 +1,4 @@
-# 🛠️ Sensor-Based Automatic Crack Detection System (ACDS)
+# Sensor-Based Automatic Crack Detection System (ACDS)
 
 [![Python Version](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -10,7 +10,7 @@ ACDS: An IoT-based system for real-time, automatic crack detection in concrete u
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About The Project](#about-the-project)
 - [Key Features](#key-features)
@@ -29,7 +29,7 @@ ACDS: An IoT-based system for real-time, automatic crack detection in concrete u
 
 ---
 
-## 📖 About The Project
+## About The Project
 
 Traditional methods for inspecting civil structures like bridges and buildings are often manual, subjective, and unsafe. They typically only identify surface-level cracks after they have already formed. This project, the **Automatic Crack Detection System (ACDS)**, addresses these limitations by providing an automated, real-time solution for structural health monitoring.
 
@@ -37,7 +37,7 @@ Instead of relying on cameras, ACDS uses data from physical sensors (like **stra
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **🧠 Real-Time Prediction**: Classifies the health of a concrete structure into five severity levels, from "No Crack" to "Large Crack Formed."
 - **📊 Multi-System Dashboard**: A user-friendly GUI built with Tkinter allows for the simultaneous monitoring of up to three independent systems.
@@ -48,7 +48,7 @@ Instead of relying on cameras, ACDS uses data from physical sensors (like **stra
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 The system follows a logical flow from data acquisition to user-facing insights.
 
@@ -60,7 +60,7 @@ The system follows a logical flow from data acquisition to user-facing insights.
 
 ---
 
-## 🧠 The Machine Learning Model
+## The Machine Learning Model
 
 The core of this system is a **Logistic Regression** classifier. After evaluating six different algorithms (including Random Forest, XGBoost, and SVM), Logistic Regression was chosen for its optimal balance of high accuracy and low inference time.
 
@@ -78,7 +78,7 @@ The model was trained on a dataset generated from eight reinforced concrete beam
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these steps to set up and run the project on your local machine.
 
@@ -116,7 +116,7 @@ Follow these steps to set up and run the project on your local machine.
 
 ---
 
-## ▶️ Usage
+## Usage
 
 Once the installation is complete, you can launch the dashboard.
 
@@ -145,7 +145,7 @@ This mode simulates a live feed of sensor data from a file.
 
 ---
 
-## 💻 Technologies Used
+## Technologies Used
 
 - **Backend**: Python
 - **Machine Learning**: Scikit-learn, Pandas, NumPy
@@ -155,13 +155,13 @@ This mode simulates a live feed of sensor data from a file.
 
 ---
 
-## 📄 License
+## License
 
 This project is distributed under the MIT License. See the `LICENSE` file for more information.
 
 ---
 
-## 🧑‍💻 Authors
+## Authors
 
 This project is based on the research paper by:
 
@@ -175,7 +175,7 @@ This project is based on the research paper by:
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Thanks to the technicians and staff at the structural engineering lab for their support during the experimental phase of this research.
 - The comprehensive journal article provided a clear and detailed foundation for this project's documentation.
