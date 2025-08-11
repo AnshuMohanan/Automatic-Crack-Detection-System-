@@ -6,7 +6,7 @@
 
 ACDS: An IoT-based system for real-time, automatic crack detection in concrete using machine learning . It leverages sensor data (stress/strain) to classify crack severity and provide early warnings for structural health monitoring, moving beyond traditional visual inspection.
 
-![ACDS GUI](https://i.imgur.com/dashboard.png)
+![ACDS GUI](https://github.com/AnshuMohanan/Automatic-Crack-Detection-System-/blob/main/GUI/dashboard.png)
 
 ---
 
@@ -142,6 +142,8 @@ This mode simulates a live feed of sensor data from a file.
 1.  Click **Start Real-Time Simulation**.
 2.  Select a `.csv` or `.xlsx` file to act as the source for the data stream.
 3.  The application will process the data one entry at a time, updating the plot and status label in real-time.
+
+[▶️ Watch the Live Simulation Video](https://drive.google.com/file/d/1LiZXKcTF943unkCOa2lLIoZv6bomhIiH/view?usp=sharing)
 
 ---
 
