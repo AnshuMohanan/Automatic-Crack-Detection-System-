@@ -1,13 +1,10 @@
-# Automatic-Crack-Detection-System-
-ACDS: An IoT-based system for real-time, automatic crack detection in concrete using machine learning . It leverages sensor data (stress/strain) to classify crack severity and provide early warnings for structural health monitoring, moving beyond traditional visual inspection.
-
 # 🛠️ Sensor-Based Automatic Crack Detection System (ACDS)
 
 [![Python Version](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/)
 
-A real-time structural health monitoring system that uses sensor data and machine learning to predict and classify concrete crack severity. This project provides a desktop GUI for live monitoring, batch data analysis, and visualization.
+ACDS: An IoT-based system for real-time, automatic crack detection in concrete using machine learning . It leverages sensor data (stress/strain) to classify crack severity and provide early warnings for structural health monitoring, moving beyond traditional visual inspection.
 
 ![ACDS GUI](https://i.imgur.com/qL6W20Q.png)
 
