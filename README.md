@@ -6,7 +6,7 @@
 
 ACDS: An IoT-based system for real-time, automatic crack detection in concrete using machine learning . It leverages sensor data (stress/strain) to classify crack severity and provide early warnings for structural health monitoring, moving beyond traditional visual inspection.
 
-![ACDS GUI](https://i.imgur.com/qL6W20Q.png)
+![ACDS GUI](https://i.imgur.com/dashboard.png)
 
 ---
 
@@ -91,8 +91,8 @@ Follow these steps to set up and run the project on your local machine.
 
 1.  **Clone the repository:**
     ```sh
-    git clone [https://github.com/your-username/your-project-name.git](https://github.com/your-username/your-project-name.git)
-    cd your-project-name
+    git clone https://github.com/AnshuMohanan/Automatic-Crack-Detection-System-.git
+    cd Automatic-Crack-Detection-System-
     ```
 
 2.  **Create and activate a virtual environment (recommended):**
