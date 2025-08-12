@@ -86,14 +86,14 @@ Follow these steps to set up and run the project on your local machine.
 
 ### Prerequisites
 ```sh
-    pandas
-    scikit-learn
-    numpy
-    matplotlib
-    openpyxl
-    joblib
-    paho-mqtt
- ```
+pandas
+scikit-learn
+numpy
+matplotlib
+openpyxl
+joblib
+paho-mqtt
+```
 ### Installation
 
 1.  **Clone the repository:**
