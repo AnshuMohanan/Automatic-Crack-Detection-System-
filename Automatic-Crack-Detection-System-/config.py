@@ -21,6 +21,14 @@ SMOOTH_POLY_ORDER = 3
 STRESS_DROP_THRESHOLD = -0.05
 STRESS_RISE_THRESHOLD = 0.05
 
+# --- MQTT Configuration ---
+MQTT_BROKER = "************************"  # Replace with your broker address
+MQTT_PORT = **** # Replace with your broker port
+MQTT_USER = "******"                     # Replace with your username
+MQTT_PASS = "******"                     # Replace with your password
+MQTT_TOPIC = "******"                    # Topic for receiving sensor data
+MQTT_COMMAND_TOPIC = "*******/command"   # Topic for sending the 'START' command
+
 # --- GUI Mappings ---
 # Status codes and their human-readable descriptions
 CRACK_CONDITIONS = {
