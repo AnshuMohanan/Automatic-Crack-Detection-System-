@@ -1,6 +1,6 @@
 # Automatic Crack Detection System (ACDS) - Data Logger
 
-This repository contains the source code for the data acquisition and transmission unit of the Automatic Crack Detection System (ACDS). This firmware is designed for an ESP8266 microcontroller and is responsible for reading sensor data, logging it to an SD card, and transmitting it to an MQTT server for further analysis.
+This repository contains the source code for the data acquisition and transmission unit of the Automatic Crack Detection System (ACDS). This firmware is designed for an ESP8266 microcontroller and is responsible for reading sensor data, logging it to an SD card, and transmitting it to an MQTT server then to pc.
 
 The system is built to be robust, featuring a smart Wi-Fi manager that can store multiple network credentials and an offline-first data logging approach to prevent data loss.
 
@@ -16,7 +16,7 @@ The system is built to be robust, featuring a smart Wi-Fi manager that can store
 
 - [Features](#Features)
 - [Hardware Requirements](#Hardware-Requirements)
-- [Software & Libraries](#Software-&-Libraries)
+- [Libraries](#Libraries)
 - [How to Use](#How-to-Use)
 - [File Structure](#File-Structure)
 
@@ -35,8 +35,10 @@ The system is built to be robust, featuring a smart Wi-Fi manager that can store
     - Periodically sends all stored data from the SD card to a secure MQTT broker.
     - If a data transmission fails, the data is kept on the SD card to be sent later.
     - Uses status LEDs to provide a visual indication of Wi-Fi and MQTT connection status.
+- **Global Remote Monitoring**:
+    - By leveraging the MQTT protocol over the internet, sensor data can be securely accessed and monitored from anywhere        in the world, enabling real-time remote analysis.
 - **Modular Codebase**:
-    - The code is split into logical modules (`wifi_manager`, `data_handler`) for better readability, maintenance, and scalability.
+    - The code is split into logical modules (`wifi_manager`, `data_handler`) for better readability, maintenance, and           scalability.
 
 ---
 
@@ -53,7 +55,7 @@ The system is built to be robust, featuring a smart Wi-Fi manager that can store
 
 ---
 
-## Software & Libraries
+## Libraries
 
 This project is built using the Arduino IDE. You will need to install the following libraries:
 
