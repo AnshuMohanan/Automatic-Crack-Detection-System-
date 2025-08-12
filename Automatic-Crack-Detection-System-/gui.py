@@ -10,6 +10,11 @@ import datetime
 import threading
 import time
 import os
+import json
+
+# Import Paho MQTT client
+import paho.mqtt.client as mqtt
+from paho.mqtt.client import CallbackAPIVersion
 
 # Import application components and settings
 import config
@@ -57,7 +62,13 @@ class UnifiedGUI:
 
         tk.Button(system_frame, text="Upload Data (Batch)", command=lambda: self.upload_batch_data(system_name), font=("Arial", 12)).pack(pady=5, fill="x")
         tk.Button(system_frame, text="Monitor Batch Data", command=lambda: self.start_batch_monitoring(system_name), font=("Arial", 12)).pack(pady=5, fill="x")
-        tk.Button(system_frame, text="Start Real-Time Simulation", command=lambda: self.start_real_time_simulation(system_name), font=("Arial", 12, "bold"), bg="#27ae60", fg="white").pack(pady=10, fill="x")
+        
+        # --- MODIFIED: Real-time buttons ---
+        connect_btn = tk.Button(system_frame, text="Connect Live Sensor", command=lambda: self.start_live_monitoring(system_name), font=("Arial", 12, "bold"), bg="#27ae60", fg="white")
+        connect_btn.pack(pady=10, fill="x")
+        disconnect_btn = tk.Button(system_frame, text="Disconnect Sensor", command=lambda: self.stop_live_monitoring(system_name), font=("Arial", 12), bg="#c0392b", fg="white", state="disabled")
+        disconnect_btn.pack(pady=5, fill="x")
+        # ------------------------------------
 
         result_label = tk.Label(system_frame, text="No data loaded.", font=("Arial", 12), bg="#f0f2f5", fg="#34495e")
         result_label.pack(pady=10)
@@ -71,7 +82,9 @@ class UnifiedGUI:
 
         self.datasets[system_name] = {
             "result_label": result_label, "ax": ax, "canvas": canvas, "log_text": log_text,
-            "batch_data": None, "processor": RealTimeProcessor(self.model, self.scaler), "simulation_running": False
+            "batch_data": None, "processor": RealTimeProcessor(self.model, self.scaler), 
+            "simulation_running": False, "plot_data": {'stress': [], 'strain': []},
+            "mqtt_client": None, "connect_btn": connect_btn, "disconnect_btn": disconnect_btn
         }
         self.setup_plot(system_name)
 
@@ -85,7 +98,7 @@ class UnifiedGUI:
         ax.set_ylabel("Stress (MPa)")
         self.datasets[system_name]["canvas"].draw()
 
-    # --- Batch Processing Methods ---
+    # --- Batch Processing Methods (Unchanged) ---
     def upload_batch_data(self, system_name):
         file_path = filedialog.askopenfilename(filetypes=[("Excel/CSV Files", "*.xlsx *.csv")])
         if not file_path: return
@@ -118,39 +131,81 @@ class UnifiedGUI:
             time.sleep(0.1)
         self.root.after(0, self.log_result, system_name, "Batch monitoring complete.")
 
-    # --- Real-Time Simulation Methods ---
-    def start_real_time_simulation(self, system_name):
+    # --- NEW: Real-Time MQTT Monitoring Methods ---
+    def start_live_monitoring(self, system_name):
         info = self.datasets[system_name]
         if info["simulation_running"]:
-            messagebox.showwarning("Warning", "Simulation is already running.")
+            messagebox.showwarning("Warning", "Live monitoring is already active.")
             return
-        file_path = filedialog.askopenfilename(title="Select Data File for Sensor Stream", filetypes=[("Excel/CSV Files", "*.xlsx *.csv")])
-        if not file_path: return
 
         info["simulation_running"] = True
+        info["connect_btn"].config(state="disabled")
+        info["disconnect_btn"].config(state="normal")
         info["processor"].buffer.clear()
+        info["plot_data"] = {'stress': [], 'strain': []}
         self.setup_plot(system_name)
-        self.log_result(system_name, f"Real-time simulation started with {os.path.basename(file_path)}")
-        
-        plot_data = {'stress': [], 'strain': []}
-        threading.Thread(target=self._run_real_time_simulation, args=(system_name, file_path, plot_data), daemon=True).start()
+        self.log_result(system_name, "🚀 Attempting to connect to live sensor...")
 
-    def _run_real_time_simulation(self, system_name, file_path, plot_data):
-        info = self.datasets[system_name]
         try:
-            df = pd.read_csv(file_path) if file_path.endswith('.csv') else pd.read_excel(file_path)
-            for _, row in df.iterrows():
-                load, lvdt = row['LOAD CELL(KN)'], row['LVDT(mm)']
-                stress, strain, status = info["processor"].process_new_reading(load, lvdt)
-                self.root.after(0, self.update_gui_elements, system_name, stress, strain, status, plot_data)
-                time.sleep(0.5)
+            client = mqtt.Client(CallbackAPIVersion.VERSION2)
+            info["mqtt_client"] = client
+            
+            # Assign callbacks with context using lambda
+            client.on_connect = lambda c, u, f, rc, p: self._on_mqtt_connect(c, u, f, rc, p, system_name)
+            client.on_message = lambda c, u, msg: self._on_mqtt_message(c, u, msg, system_name)
+            
+            client.username_pw_set(config.MQTT_USER, config.MQTT_PASS)
+            client.tls_set()
+            client.connect(config.MQTT_BROKER, config.MQTT_PORT, 60)
+            client.loop_start()
         except Exception as e:
-            self.root.after(0, messagebox.showerror, "Simulation Error", f"An error occurred: {e}")
-        finally:
-            info["simulation_running"] = False
-            self.root.after(0, self.log_result, system_name, "Real-time simulation finished.")
+            self.log_result(system_name, f"❌ MQTT Connection Error: {e}")
+            messagebox.showerror("Connection Error", f"Could not connect to MQTT broker: {e}")
+            self.stop_live_monitoring(system_name) # Reset GUI state
 
-    # --- Unified GUI Update Methods ---
+    def _on_mqtt_connect(self, client, userdata, flags, rc, properties, system_name):
+        if rc == 0:
+            self.root.after(0, self.log_result, system_name, "✅ Connected to MQTT Broker!")
+            self.root.after(0, self.log_result, system_name, f"   Subscribing to topic: {config.MQTT_TOPIC}")
+            client.subscribe(config.MQTT_TOPIC)
+            
+            self.root.after(0, self.log_result, system_name, f"--> Sending 'START' command...")
+            client.publish(config.MQTT_COMMAND_TOPIC, "START", qos=1)
+        else:
+            self.root.after(0, self.log_result, system_name, f"❌ Failed to connect, return code {rc}")
+            self.root.after(0, self.stop_live_monitoring, system_name)
+
+    def _on_mqtt_message(self, client, userdata, msg, system_name):
+        try:
+            payload = json.loads(msg.payload.decode())
+            load_kn = payload.get("load_cell")
+            lvdt_mm = payload.get("strain_gauge")
+
+            if load_kn is not None and lvdt_mm is not None:
+                info = self.datasets[system_name]
+                processor = info["processor"]
+                plot_data = info["plot_data"]
+                
+                stress, strain, status = processor.process_new_reading(load_kn, lvdt_mm)
+                self.root.after(0, self.update_gui_elements, system_name, stress, strain, status, plot_data)
+            else:
+                self.root.after(0, self.log_result, system_name, f"⚠️ Received malformed data: {msg.payload.decode()}")
+        except Exception as e:
+            self.root.after(0, self.log_result, system_name, f"Error processing message: {e}")
+            
+    def stop_live_monitoring(self, system_name):
+        info = self.datasets[system_name]
+        if info["mqtt_client"]:
+            info["mqtt_client"].loop_stop()
+            info["mqtt_client"].disconnect()
+            self.log_result(system_name, "⏹️ Sensor connection closed.")
+        
+        info["simulation_running"] = False
+        info["mqtt_client"] = None
+        info["connect_btn"].config(state="normal")
+        info["disconnect_btn"].config(state="disabled")
+
+    # --- Unified GUI Update Methods (Unchanged) ---
     def update_gui_elements(self, system_name, stress, strain, status_code, plot_data):
         info = self.datasets[system_name]
         status_text = config.CRACK_CONDITIONS.get(status_code, "Unknown")
@@ -166,17 +221,28 @@ class UnifiedGUI:
         plot_data['strain'].append(strain)
 
         if len(plot_data['stress']) > 1:
-            prev_status = status_code
-            if info["batch_data"] is not None and not info["simulation_running"]:
-                idx = len(plot_data['stress']) - 2
-                if idx < len(info["batch_data"]):
-                    prev_status = info["batch_data"]['Status'].iloc[idx]
+            # For live data, the previous status is derived from the processor's last step.
+            # We get the prediction and then plot the segment leading to it.
+            # The color of a line segment is determined by the status of its STARTING point.
+            
+            # Get the previous status code to color the line segment correctly.
+            # This logic needs to be robust. We can peek at the processor's buffer state if needed,
+            # but for simplicity, we assume the previous point's status led to the current one.
+            # Let's find the status of the previous point.
+            # A simple way is to track the last status.
+            
+            prev_status = status_code # Fallback
+            if 'last_status' in info:
+                prev_status = info['last_status']
             
             if prev_status != -1:
                 info["ax"].plot(plot_data['strain'][-2:], plot_data['stress'][-2:],
                                color=config.COLOR_MAPPING.get(prev_status, 'black'),
                                marker='o', markersize=4, linestyle='-')
                 info["canvas"].draw()
+        
+        info['last_status'] = status_code
+
 
     def log_result(self, system_name, result):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
@@ -185,4 +251,3 @@ class UnifiedGUI:
         log_text.insert("end", f"[{timestamp}] {result}\n")
         log_text.see("end")
         log_text.config(state="disabled")
-        
