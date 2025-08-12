@@ -44,7 +44,7 @@ Instead of relying on cameras, ACDS uses data from physical sensors (like **stra
 - **📂 Batch Data Processing**: Analyze pre-recorded datasets from CSV or Excel files to visualize crack formation over time.
 - **📈 Dynamic Visualization**: Plots a color-coded stress-strain curve in real-time, providing an intuitive visual representation of the structure's current state.
 - **⚡ High Performance**: Powered by a lightweight Logistic Regression model that achieves **93.75% accuracy** with an extremely fast inference time, making it ideal for real-time applications.
-- **🔌 IoT-Ready Architecture**: Designed to integrate with microcontrollers like ESP32/ESP8266 for live data streaming from embedded sensors.
+- **🔌 Live IoT Integration**: Connects directly to an MQTT broker to stream and process live sensor data from microcontrollers like an ESP32 in real-time.
 
 ---
 
@@ -53,10 +53,12 @@ Instead of relying on cameras, ACDS uses data from physical sensors (like **stra
 The system follows a logical flow from data acquisition to user-facing insights.
 
 1.  **Data Acquisition**: Strain gauges and load cells are attached to a concrete beam. An ESP32/ESP8266 microcontroller reads the analog sensor data.
-2.  **Data Transmission**: The microcontroller wirelessly transmits the stress and strain data to the central processing unit (the PC running the dashboard).
-3.  **Data Preprocessing**: Raw sensor values are received and preprocessed. This includes scaling the data and performing feature engineering to create new metrics like slope, stress/strain difference, and a stress-strain curve score.
-4.  **ML Prediction**: The preprocessed data is fed into the trained Logistic Regression model, which classifies the current state into one of the five crack categories.
-5.  **Visualization & Alerts**: The Tkinter GUI plots the data on the stress-strain graph, updates the status label with a color-coded prediction, and logs the activity. It can provide alerts if a critical crack stage is detected.
+2.  **Data Transmission**: The microcontroller reads sensor values and publishes them as a JSON payload to a central MQTT broker on a specific topic (MQTT_TOPIC).
+3.  **Dashboard Connection**: The user clicks "Connect Live Sensor" in the GUI. The application subscribes to the MQTT topic to listen for incoming data.
+4.  **Remote Start Command**: Upon successful connection, the application publishes a START message to a command topic (MQTT_COMMAND_TOPIC) to signal the microcontroller to begin sending data.
+5.  **Real-Time Processing**: For each incoming data point, the RealTimeProcessor smooths the values, calculates engineered features, and feeds them into the pre-trained machine learning model.
+6.  **ML Prediction**: The preprocessed data is fed into the trained Logistic Regression model, which classifies the current state into one of the five crack categories.
+7.  **Visualization & Alerts**: The Tkinter GUI plots the data on the stress-strain graph, updates the status label with a color-coded prediction, and logs the activity. It can provide alerts if a critical crack stage is detected.
 
 ---
 
@@ -83,10 +85,15 @@ The model was trained on a dataset generated from eight reinforced concrete beam
 Follow these steps to set up and run the project on your local machine.
 
 ### Prerequisites
-
-- [Python](https://www.python.org/downloads/) (3.9 or newer)
-- [Git](https://git-scm.com/downloads)
-
+```sh
+    pandas
+    scikit-learn
+    numpy
+    matplotlib
+    openpyxl
+    joblib
+    paho-mqtt
+ ```
 ### Installation
 
 1.  **Clone the repository:**
@@ -139,9 +146,21 @@ This mode is for analyzing existing data files.
 
 This mode simulates a live feed of sensor data from a file.
 
-1.  Click **Start Real-Time Simulation**.
-2.  Select a `.csv` or `.xlsx` file to act as the source for the data stream.
-3.  The application will process the data one entry at a time, updating the plot and status label in real-time.
+1.  **Configure MQTT Settings**: Before launching, open the config.py file and update the following MQTT credentials:
+```sh
+# --- MQTT Configuration ---
+MQTT_BROKER = "your_broker_address"
+MQTT_PORT = *** # Your broker's port
+MQTT_USER = "your_username"
+MQTT_PASS = "your_password"
+MQTT_TOPIC = "sensor/data/topic"
+MQTT_COMMAND_TOPIC = "sensor/command/topic"
+```
+2. Start Monitoring: In the GUI, click the Connect Live Sensor button.
+3. **View Live Data**: The application will attempt to connect to the broker. Once connected, it will listen for data and update the plot and status in real-time as sensor readings are received.
+4. **Disconnect**: Click Disconnect Sensor to stop monitoring and close the connection.
+
+Note: This "live" mode simulates a real-time feed using data from a pre-recorded file. This approach was necessary as access to a lab with the required professional equipment was not available.
 
 [▶️ Watch the Live Simulation Video](https://drive.google.com/file/d/1LiZXKcTF943unkCOa2lLIoZv6bomhIiH/view?usp=sharing)
 
@@ -151,6 +170,7 @@ This mode simulates a live feed of sensor data from a file.
 
 - **Backend**: Python
 - **Machine Learning**: Scikit-learn, Pandas, NumPy
+- **IoT Communication**: Paho-MQTT
 - **GUI**: Tkinter
 - **Data Visualization**: Matplotlib
 - **Model Persistence**: Joblib
