@@ -22,11 +22,13 @@ struct WifiCredential {
 const int EEPROM_SIZE = sizeof(WifiCredential) * MAX_WIFI_CREDENTIALS;
 
 // --- MQTT Credentials ---
-const char* mqtt_server = "*******";
+const char* mqtt_server = "***************";
 const int mqtt_port = ****;
 const char* mqtt_user = "*********";
 const char* mqtt_pass = "*********";
 const char* mqtt_topic = "********";
+// --- NEW: Topic for receiving commands from the receiver ---
+const char* mqtt_command_topic = "********/command"; // e.g., "your_base_topic/command"
 
 // --- SD Card & Sensor Pins ---
 const int chipSelect = D4; // GPIO2
